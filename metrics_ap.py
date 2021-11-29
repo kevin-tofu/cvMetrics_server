@@ -29,44 +29,34 @@ def bbox_iou_loop(bbox1, bbox2):
 
     return np.concatenate(temp, axis=0)
 
-def bbox_iou(bbox1, bbox2):
-    """
-    boxes1 (ndarray[N, 4]) – first set of boxes
-    boxes2 (ndarray[M, 4]) – second set of boxes
-    returns ndarray[N, M]
-    """
-    boxes1_area = bbox1[..., 2] * bbox1[..., 3]
-    boxes2_area = bbox2[..., 2] * bbox2[..., 3]
-    # boxes1 = np.concatenate([bbox1[..., :2] - bbox1[..., 2:4] * 0.5,  
-    #                          bbox1[..., :2] + bbox1[..., 2:4] * 0.5], axis= -1 \
-    # )
-    # boxes2 = np.concatenate([bbox2[..., :2] - bbox2[..., 2:4] * 0.5,  
-    #                          bbox2[..., :2] + bbox2[..., 2:4] * 0.5], axis= -1 \
-    # )
-    boxes1 = np.concatenate([bbox1[..., :2],  
-                             bbox1[..., :2] + bbox1[..., 2:4]], axis= -1 \
-    )
-    boxes2 = np.concatenate([bbox2[..., :2],  
-                             bbox2[..., :2] + bbox2[..., 2:4]], axis= -1 \
-    )
+# def bbox_iou(bbox1, bbox2):
+#     """
+#     boxes1 (ndarray[N, 4]) – first set of boxes
+#     boxes2 (ndarray[M, 4]) – second set of boxes
+#     returns ndarray[N, M]
+#     """
+#     boxes1_area = bbox1[..., 2] * bbox1[..., 3]
+#     boxes2_area = bbox2[..., 2] * bbox2[..., 3]
+#     # boxes1 = np.concatenate([bbox1[..., :2] - bbox1[..., 2:4] * 0.5,  
+#     #                          bbox1[..., :2] + bbox1[..., 2:4] * 0.5], axis= -1 \
+#     # )
+#     # boxes2 = np.concatenate([bbox2[..., :2] - bbox2[..., 2:4] * 0.5,  
+#     #                          bbox2[..., :2] + bbox2[..., 2:4] * 0.5], axis= -1 \
+#     # )
+#     boxes1 = np.concatenate([bbox1[..., :2],  
+#                              bbox1[..., :2] + bbox1[..., 2:4]], axis= -1 \
+#     )
+#     boxes2 = np.concatenate([bbox2[..., :2],  
+#                              bbox2[..., :2] + bbox2[..., 2:4]], axis= -1 \
+#     )
 
-    # print(boxes1)
-    # print(boxes2)
-    left_up = np.maximum(boxes1[..., :2], boxes2[..., :2])
-    right_down = np.maximum(boxes1[..., 2:], boxes2[..., 2:])
-    # print('left_up', left_up.shape)
-    # print('right_down', right_down.shape)
-
-    inter_section = np.maximum(right_down - left_up, 0.0)
-    inter_area = inter_section[..., 0] * inter_section[..., 1]
-    union_area = boxes1_area + boxes2_area - inter_area
-    IoU = inter_area / union_area
-    
-    # print('inter_section', inter_section)
-    # print(inter_area)
-    # print(union_area)
-    # print(IoU)
-    return IoU
+#     left_up = np.maximum(boxes1[..., :2], boxes2[..., :2])
+#     right_down = np.maximum(boxes1[..., 2:], boxes2[..., 2:])
+#     inter_section = np.maximum(right_down - left_up, 0.0)
+#     inter_area = inter_section[..., 0] * inter_section[..., 1]
+#     union_area = boxes1_area + boxes2_area - inter_area
+#     IoU = inter_area / union_area
+#     return IoU
 
 
 def convert_gt(anns, func_convert):
