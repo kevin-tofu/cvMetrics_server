@@ -23,13 +23,19 @@ class cocoMetrics():
         metrics = metrics_ap.main_all(config.PATH_ANNOTATION, fpath, fmt = 'summarize')
         return metrics
 
-    async def evaluate_coco_each(self, anns):
+    async def evaluate_coco_each(self, img_id, anns):
 
         # coco = COCO(fpath)
         # imgIds = coco.getImgIds()
         # annIds = coco.getAnnIds(imgIds=[imgIds[0]], iscrowd=False)
         # anns = coco.loadAnns(annIds)
-        img_id = 0
         metrics = metrics_ap.main_each(config.PATH_ANNOTATION, img_id, anns)
         # print(metrics)
         return metrics
+
+    async def cocoEvaluation(self, file):
+        fpath = f'{config.PATH_DATA}/{file.filename}'
+        await save_json(file, fpath)
+
+        metrix_text = metrics_ap.cocoEvaluation(config.PATH_ANNOTATION, fpath)
+        return metrix_text

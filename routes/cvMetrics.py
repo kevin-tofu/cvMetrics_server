@@ -32,3 +32,6 @@ async def meanAveragePrecision(jsonfile: UploadFile = File(...)):
 async def meanAveragePrecision_each(coco: cocoList = {}):
     return await mymetrics.evaluate_coco_each(coco['image_id'], coco['annotation'])
 
+@router.post('/cocoEvaluation/')
+async def cocoEvaluation(jsonfile: UploadFile = File(...)):
+    return await mymetrics.evaluate_coco_each(jsonfile)

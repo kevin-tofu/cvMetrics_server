@@ -1,6 +1,8 @@
 
-from pycocotools.coco import COCO
 import numpy as np
+from pycocotools.coco import COCO
+from pycocotools.cocoeval import COCOeval
+from myCOCOeval import myCOCOeval
 
 def iou_1list(a, b_list):
 
@@ -336,3 +338,21 @@ def main_all(path_gt, path_pred, func_convert = None, fmt='summarize'):
     return metrics
     
 
+def cocoEvaluation(path_gt, path_pred, annType):
+    """
+    https://github.com/cocodataset/cocoapi/blob/8c9bcc3cf640524c4c20a9c40e89cb6a2f2fa0e9/PythonAPI/pycocotools/cocoeval.py
+    """
+    cocoGt = COCO(path_gt)
+    cocoDt = cocoGt.loadRes(path_pred)
+    imgIds=sorted(cocoGt.getImgIds())
+
+    # annType = ['segm','bbox','keypoints']
+    # annType = annType[1] 
+    # cocoEval = COCOeval(cocoGt, cocoDt, annType)
+    cocoEval = myCOCOeval(cocoGt, cocoDt, annType)
+    cocoEval.params.imgIds = imgIds
+    cocoEval.evaluate()
+    cocoEval.accumulate()
+    cocoEval.summarize()
+    # return cocoEval.stats
+    return cocoEval.iStr_ex

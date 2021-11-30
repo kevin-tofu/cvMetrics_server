@@ -7,3 +7,4 @@ APP_PORT = os.getenv('APP_PORT', 80)
 
 PATH_DATA = os.getenv('PATH_DATA', './temp/')
 PATH_ANNOTATION = os.getenv('PATH_ANNOTATION', './annotations/instances_val2017.json')
+PATH_IMAGE = os.getenv('PATH_IMAGE', './images/val2017/')
