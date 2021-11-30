@@ -2,7 +2,6 @@
 from pycocotools.coco import COCO
 import numpy as np
 
-
 def iou_1list(a, b_list):
 
     a_area = a[2] * a[3]
@@ -50,6 +49,34 @@ def bbox_iou_loop(bbox1, bbox2):
 #                              bbox2[..., :2] + bbox2[..., 2:4]], axis= -1 \
 #     )
 
+# def bbox_iou(bbox1, bbox2):
+#     """
+#     boxes1 (ndarray[N, 4]) – first set of boxes
+#     boxes2 (ndarray[M, 4]) – second set of boxes
+#     returns ndarray[N, M]
+#     """
+#     boxes1_area = bbox1[..., 2] * bbox1[..., 3]
+#     boxes2_area = bbox2[..., 2] * bbox2[..., 3]
+#     # boxes1 = np.concatenate([bbox1[..., :2] - bbox1[..., 2:4] * 0.5,  
+#     #                          bbox1[..., :2] + bbox1[..., 2:4] * 0.5], axis= -1 \
+#     # )
+#     # boxes2 = np.concatenate([bbox2[..., :2] - bbox2[..., 2:4] * 0.5,  
+#     #                          bbox2[..., :2] + bbox2[..., 2:4] * 0.5], axis= -1 \
+#     # )
+#     boxes1 = np.concatenate([bbox1[..., :2],  
+#                              bbox1[..., :2] + bbox1[..., 2:4]], axis= -1 \
+#     )
+#     boxes2 = np.concatenate([bbox2[..., :2],  
+#                              bbox2[..., :2] + bbox2[..., 2:4]], axis= -1 \
+#     )
+
+#     left_up = np.maximum(boxes1[..., :2], boxes2[..., :2])
+#     right_down = np.maximum(boxes1[..., 2:], boxes2[..., 2:])
+#     inter_section = np.maximum(right_down - left_up, 0.0)
+#     inter_area = inter_section[..., 0] * inter_section[..., 1]
+#     union_area = boxes1_area + boxes2_area - inter_area
+#     IoU = inter_area / union_area
+#     return IoU
 #     left_up = np.maximum(boxes1[..., :2], boxes2[..., :2])
 #     right_down = np.maximum(boxes1[..., 2:], boxes2[..., 2:])
 #     inter_section = np.maximum(right_down - left_up, 0.0)
@@ -112,18 +139,11 @@ def compute_each(anns_pred, anns_gt, func_convert = None):
         
         # ious = bbox_iou(bbox_array_pred[pred_idx, :], bbox_array_gt[gt_idx, :]) # (N, M)
         ious = bbox_iou_loop(bbox_array_pred[pred_idx, :], bbox_array_gt[gt_idx, :]) # (N, M)
-        # print(ious, ious.shape)
-        # print(bbox_array_pred[pred_idx, :])
-        # print(bbox_array_gt[gt_idx, :])
         
         ious_max_gt = np.max(ious, axis=1) #  (N)
         ious_max_gt_arg = np.argmax(ious, axis=1) # (N), the most fitted predicted bbox
 
-        # print(ious_max_gt)
-        # print(ious_max_gt_arg)
-
         for index_pred, ious_max_gt_loop in enumerate(ious_max_gt):
-        # for index_iouth_gt in np.nonzero(ious_max_gt > iouv[0]):
 
             if ious_max_gt_loop < iouv[0]:
                 continue
@@ -132,17 +152,11 @@ def compute_each(anns_pred, anns_gt, func_convert = None):
 
             if detected not in detected_list:
                 detected_list.append(detected)
-
-                print(ious_max_gt)
-                print(ious_max_gt[index_pred])
-                # print(iouv)
-                # print(ious_max_gt[index_pred] > iouv)
                 
                 correct[pred_idx[index_pred]] = (ious_max_gt[index_pred] > iouv)
                 if len(detected_list) == bbox_array_gt.shape[0]:
                     break
     
-    # print(np.sum(correct))
     return (correct, pred_score, pred_category, gt_category)
 
 
@@ -186,24 +200,20 @@ def AveragePresicion(tp, score, pred_cls, target_cls):
         if n_p == 0 or n_gt == 0:
             continue
         else:
-
             fpc = (1 - tp[i]).cumsum(0)
             tpc = tp[i].cumsum(0)
 
             recall = tpc / (n_gt + 1e-12)
-            r[ci] = np.interp(-pr_score, -score[i], recall[:, 0])
+            r[ci] = round(np.interp(-pr_score, -score[i], recall[:, 0]), 3)
 
             precision = tpc / (tpc + fpc)
-            p[ci] = np.interp(-pr_score, -score[i], precision[:, 0])
+            p[ci] = round(np.interp(-pr_score, -score[i], precision[:, 0]), 3)
 
             for j in range(tp.shape[1]):
-                ap[ci, j] = compute_ap(recall[:, j], precision[:, j])
-
-
+                ap[ci, j] = round(compute_ap(recall[:, j], precision[:, j]), 3)
 
     f1 = 2 * p * r / (p + r + 1e-12)
     return p, r, ap, f1, unique_classes.astype(np.int32)
-
 
 
 def AveragePresicion_All(tp, score, pred_cls, target_cls):
@@ -247,8 +257,38 @@ def AveragePresicion_All(tp, score, pred_cls, target_cls):
     return p, r, ap, f1, unique_classes.astype(np.int32)
 
 
+def main_each(path_gt, id_img, anns_pred, func_convert = None, fmt='summarize'):
 
-def main(path_gt, path_pred, func_convert = None):
+    coco_gt = COCO(path_gt)
+
+    annIds_gt = coco_gt.getAnnIds(imgIds=[id_img], iscrowd=False)
+    anns_gt = coco_gt.loadAnns(annIds_gt)
+
+    temp = compute_each(anns_pred, anns_gt, func_convert=func_convert)
+
+    stats = [np.concatenate(x, 0) for x in list(zip(*[temp]))]
+    precision, recall, ap, f1, ap_class = AveragePresicion(*stats)
+    AP, f1 = ap.mean(), ap[:, 0]
+
+    if fmt == 'summarize':
+        metrics = {
+                'precision': precision[:, 0].mean(),
+                'recall': recall[:, 0].mean(),
+                'mAP': AP.tolist(),
+                'f1': f1.tolist()
+        }
+    else:
+        metrics = {
+            'precision': precision.tolist(),
+            'recall': recall.tolist(),
+            'mAP': AP.tolist(),
+            'f1': f1.tolist()
+        }
+
+    return metrics
+
+
+def main_all(path_gt, path_pred, func_convert = None, fmt='summarize'):
 
     # print(path_pred, path_gt)
     coco_pred = COCO(path_pred)
@@ -272,15 +312,27 @@ def main(path_gt, path_pred, func_convert = None):
     
 
     AP, f1 = ap.mean(), ap[:, 0]
-    metrics = {
-        'precision': precision[:, 0].mean(),
-        'recall': recall[:, 0].mean(),
-        'mAP': AP.mean(),
-        'f1': f1.mean()
-    }
 
-    print(metrics)
-    # print(ap_class)
+    if fmt == 'summarize':
+        metrics = {
+            'precision': precision[:, 0].mean(),
+            'recall': recall[:, 0].mean(),
+            'mAP': AP.tolist(),
+            'f1': f1.tolist()
+        }
+    else:
+        metrics = {
+            'precision': precision.tolist(),
+            'recall': recall.tolist(),
+            'mAP': AP.tolist(),
+            'f1': f1.tolist()
+        }
+    
+    # print(precision.shape) # (80, 10)
+    # print(recall.shape) # (80, 10)
+    # print(ap.shape) # (80, 10)
+    # print(f1.shape) # (80)
+    # print(metrics)
     return metrics
     
 
