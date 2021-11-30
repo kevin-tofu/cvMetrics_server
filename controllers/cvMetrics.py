@@ -33,9 +33,9 @@ class cocoMetrics():
         # print(metrics)
         return metrics
 
-    async def cocoEvaluation(self, file):
+    async def pycocotoolsEvaluation(self, file):
         fpath = f'{config.PATH_DATA}/{file.filename}'
         await save_json(file, fpath)
 
-        metrix_text = metrics_ap.cocoEvaluation(config.PATH_ANNOTATION, fpath)
+        metrix_text = metrics_ap.pycocotoolsEvaluation(config.PATH_ANNOTATION, fpath)
         return metrix_text

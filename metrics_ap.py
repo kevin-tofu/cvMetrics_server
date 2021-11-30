@@ -338,7 +338,7 @@ def main_all(path_gt, path_pred, func_convert = None, fmt='summarize'):
     return metrics
     
 
-def cocoEvaluation(path_gt, path_pred, annType):
+def pycocotoolsEvaluation(path_gt, path_pred, annType):
     """
     https://github.com/cocodataset/cocoapi/blob/8c9bcc3cf640524c4c20a9c40e89cb6a2f2fa0e9/PythonAPI/pycocotools/cocoeval.py
     """

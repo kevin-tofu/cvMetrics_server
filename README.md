@@ -9,6 +9,8 @@ predicted by the machine learning model.
 | --- | --- | --- | --- |
 | /meanAveragePrecision | POST | - | Post a json file (written in COCO format) to get mean average precision. |
 | /meanAveragePrecision_each | POST | - | Post a list of annotations (written in COCO format) to get mean average precision on an image.|
+| /pycocotoolsEvaluation | POST | - | Post a json file (written in COCO format) to evaluate with pycocotools.|
+
 
 ### Definition of annotations list for meanAveragePrecision_each-post API
 
