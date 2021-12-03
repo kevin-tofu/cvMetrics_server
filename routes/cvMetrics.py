@@ -13,7 +13,7 @@ class cocoAnnotation(BaseModel):
     # area: float
     iscrowd: int
     image_id: int
-    bbox: list[float]
+    bbox: List[float]
     category_id: int
     id: int
 
