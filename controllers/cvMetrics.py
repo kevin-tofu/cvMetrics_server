@@ -1,5 +1,6 @@
 
 import os
+import json
 import shutil
 import config
 import metrics_ap
@@ -33,9 +34,43 @@ class cocoMetrics():
         # print(metrics)
         return metrics
 
-    async def pycocotoolsEvaluation(self, file):
+    async def pycocotoolsEvaluation(self, file, annType='bbox'):
         fpath = f'{config.PATH_DATA}/{file.filename}'
         await save_json(file, fpath)
 
-        metrix_text = metrics_ap.pycocotoolsEvaluation(config.PATH_ANNOTATION, fpath)
-        return metrix_text
+        ret = metrics_ap.pycocotoolsEvaluation(config.PATH_ANNOTATION, fpath, annType)
+        print(ret)
+        return ret
+
+    async def annsStatics(self, file, annType='bbox', n_anchors=9):
+
+        import numpy as np
+        from sklearn.cluster import KMeans
+
+        fpath = f'{config.PATH_DATA}/{file.filename}'
+        await save_json(file, fpath)
+
+        coco_json = json.load(open(fpath, 'r'))
+        anns = coco_json['annotations']
+
+        bbox_list = list()
+        for ann_loop in anns:
+            # print(ann_loop)
+            bbox_list.append([ann_loop['bbox'][2], ann_loop['bbox'][3]])
+
+        bbox_list = np.array(bbox_list)
+
+        
+        km = KMeans(n_clusters = n_anchors, init='k-means++', n_init=10, max_iter=300, tol=1e-04, random_state=0)
+        y_km = km.fit(bbox_list)
+
+        centroids = np.array(y_km.cluster_centers_)
+        centroids_size = centroids[:, 0] * centroids[:, 1]
+        arg_sort = np.argsort(centroids_size)
+        centroids = centroids[arg_sort]
+
+        return centroids.tolist()
+
+
+
+

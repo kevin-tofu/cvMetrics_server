@@ -1,10 +1,9 @@
 
-from fastapi import APIRouter, Request, File, UploadFile
+from fastapi import APIRouter, Request, File, UploadFile, Header
 from controllers.cvMetrics import cocoMetrics
 from pydantic import BaseModel, Field
 from typing import List
-
-# from typing import List, Optional
+from typing import Optional
 
 router = APIRouter(prefix="")
 mymetrics = cocoMetrics()
@@ -35,3 +34,10 @@ async def meanAveragePrecision_each(coco: cocoList = {}):
 @router.post('/pycocotoolsEvaluation/')
 async def pycocotoolsEvaluation(jsonfile: UploadFile = File(...)):
     return await mymetrics.pycocotoolsEvaluation(jsonfile)
+
+@router.post('/bboxStatics/')
+async def bboxStatics(jsonfile: UploadFile = File(...), n_anchors: Optional[int] = Header(9)):
+
+    return await mymetrics.annsStatics(jsonfile, \
+                                       annType='bbox', \
+                                       n_anchors=n_anchors)

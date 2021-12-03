@@ -343,8 +343,9 @@ def pycocotoolsEvaluation(path_gt, path_pred, annType):
     https://github.com/cocodataset/cocoapi/blob/8c9bcc3cf640524c4c20a9c40e89cb6a2f2fa0e9/PythonAPI/pycocotools/cocoeval.py
     """
     cocoGt = COCO(path_gt)
-    cocoDt = cocoGt.loadRes(path_pred)
-    imgIds=sorted(cocoGt.getImgIds())
+    cocoDt = COCO(path_pred)
+    # cocoDt = cocoGt.loadRes(path_pred)
+    imgIds = sorted(cocoGt.getImgIds())
 
     # annType = ['segm','bbox','keypoints']
     # annType = annType[1] 
@@ -354,5 +355,6 @@ def pycocotoolsEvaluation(path_gt, path_pred, annType):
     cocoEval.evaluate()
     cocoEval.accumulate()
     cocoEval.summarize()
-    # return cocoEval.stats
-    return cocoEval.iStr_ex
+
+    return cocoEval.stats
+    # return cocoEval.iStr_ex

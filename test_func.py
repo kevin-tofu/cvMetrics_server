@@ -31,7 +31,8 @@ def create_testFile(path_gt, path_pred):
                 'bbox': temp, 
                 'category_id': loop['category_id'], 
                 'iscrowd': loop['iscrowd'], 
-                'score': np.random.randint(5, 10) * 0.1 
+                'score': np.random.randint(5, 10) * 0.1,
+                'area': loop['area']
             }
             ann_test += [data]
             print([data])
@@ -60,4 +61,4 @@ if __name__ == '__main__':
 
     # create_testFile(path_gt, path_pred)
 
-    metrics_ap.main(path_gt, path_pred)
+    metrics_ap.main_all(path_gt, path_pred)
