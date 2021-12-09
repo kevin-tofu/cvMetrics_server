@@ -23,6 +23,8 @@ class cocoMetrics():
         await save_json(file, fpath)
 
         metrics = metrics_ap.main_all(config.PATH_ANNOTATION, fpath, fmt = 'summarize')
+
+        os.remove(fpath)
         return metrics
 
     async def evaluate_coco_each(self, img_id, anns):
@@ -42,6 +44,7 @@ class cocoMetrics():
 
         ret = metrics_ap.pycocotoolsEvaluation(config.PATH_ANNOTATION, fpath, annType)
         print(ret)
+        os.remove(fpath)
         return ret
 
     async def annsStatics(self, file, annType='bbox', n_anchors=9):
@@ -72,6 +75,7 @@ class cocoMetrics():
         arg_sort = np.argsort(centroids_size)
         centroids = centroids[arg_sort]
 
+        os.remove(fpath)
         return centroids.tolist()
 
 
