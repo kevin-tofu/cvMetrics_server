@@ -34,7 +34,6 @@ predicted by the machine learning model.
 | Variable | required | Description |
 | --- | --- | --- |
 | APP_PORT | false | The port to which the application listens to, default is set to 80 |
-| PATH_DATA | false | Directry name where to store data. |
 | PATH_ANNOTATION | false | A PATH for annotation file |
-| PATH_IMAGE | false | A PATH for directory that val-images are stored. |
+| PATH_IMAGE | false | A PATH for directory that test-images are stored. |
 
