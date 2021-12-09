@@ -5,6 +5,7 @@ import shutil
 import config
 import metrics_ap
 from pycocotools.coco import COCO
+import uuid
 
 async def save_json(file, path):
     with open(path, 'wb') as buffer:
@@ -18,7 +19,7 @@ class cocoMetrics():
 
     async def evaluate_coco(self, file):
         
-        fpath = f'{config.PATH_DATA}/{file.filename}'
+        fpath = f'{config.PATH_DATA}/{str(uuid.uuid4())}.json'
         await save_json(file, fpath)
 
         metrics = metrics_ap.main_all(config.PATH_ANNOTATION, fpath, fmt = 'summarize')
@@ -35,7 +36,8 @@ class cocoMetrics():
         return metrics
 
     async def pycocotoolsEvaluation(self, file, annType='bbox'):
-        fpath = f'{config.PATH_DATA}/{file.filename}'
+        # fpath = f'{config.PATH_DATA}/{file.filename}'
+        fpath = f'{config.PATH_DATA}/{str(uuid.uuid4())}.json'
         await save_json(file, fpath)
 
         ret = metrics_ap.pycocotoolsEvaluation(config.PATH_ANNOTATION, fpath, annType)
@@ -47,7 +49,8 @@ class cocoMetrics():
         import numpy as np
         from sklearn.cluster import KMeans
 
-        fpath = f'{config.PATH_DATA}/{file.filename}'
+        # fpath = f'{config.PATH_DATA}/{file.filename}'
+        fpath = f'{config.PATH_DATA}/{str(uuid.uuid4())}.json'
         await save_json(file, fpath)
 
         coco_json = json.load(open(fpath, 'r'))

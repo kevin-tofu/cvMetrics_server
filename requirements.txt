@@ -27,4 +27,5 @@ starlette==0.16.0
 threadpoolctl==3.0.0
 tomli==1.2.2
 typing_extensions==4.0.0
+uuid==1.30
 uvicorn==0.15.0
