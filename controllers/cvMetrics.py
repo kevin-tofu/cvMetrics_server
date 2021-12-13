@@ -43,7 +43,6 @@ class cocoMetrics():
         await save_json(file, fpath)
 
         ret = metrics_ap.pycocotoolsEvaluation(config.PATH_ANNOTATION, fpath, annType)
-        print(ret)
         os.remove(fpath)
         return ret
 

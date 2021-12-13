@@ -2,7 +2,7 @@
 import numpy as np
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
-from myCOCOeval import myCOCOeval
+# from myCOCOeval import myCOCOeval
 
 def iou_1list(a, b_list):
 
@@ -349,12 +349,27 @@ def pycocotoolsEvaluation(path_gt, path_pred, annType):
 
     # annType = ['segm','bbox','keypoints']
     # annType = annType[1] 
-    # cocoEval = COCOeval(cocoGt, cocoDt, annType)
-    cocoEval = myCOCOeval(cocoGt, cocoDt, annType)
+    cocoEval = COCOeval(cocoGt, cocoDt, annType)
+    # cocoEval = myCOCOeval(cocoGt, cocoDt, annType)
     cocoEval.params.imgIds = imgIds
     cocoEval.evaluate()
     cocoEval.accumulate()
     cocoEval.summarize()
 
-    return cocoEval.stats
+    # print(cocoEval.evalImgs[0])
+    print(cocoEval.eval['counts'])
+    print(cocoEval.eval['precision'].shape)
+    print(cocoEval.eval['recall'].shape)
+
+    #K: cat, T: IoU-th, R: recall-th, A: area-range, M: max detections per image
+    precision = np.average(cocoEval.eval['precision'], axis=(3, 4)) # T, R, K, A, M
+    recall = np.average(cocoEval.eval['recall'], axis=(2, 3)) # T, K, A, M
+    print(precision.shape, recall.shape)
+
+    result = {
+        'precision': precision.tolist(), 
+        'recall': recall.tolist()
+    }
+
+    return result
     # return cocoEval.iStr_ex
